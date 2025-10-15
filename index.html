@@ -771,7 +771,7 @@
             }
         }
 
-        function plotWaveforms(waveforms) {
+        function plotWaveforms(waveforms, duration) {  // Add duration parameter
             // Vocal fold displacement
             const trace1 = {
                 x: waveforms.time,
@@ -831,6 +831,7 @@
                 margin: { l: 60, r: 40, t: 60, b: 60 }
             }, {responsive: true});
 
+            // Acoustic pressure
             const trace5 = {
                 x: waveforms.time,
                 y: waveforms.acoustic_pressure,
@@ -847,15 +848,10 @@
                 margin: { l: 60, r: 40, t: 60, b: 60 }
             }, {responsive: true});
 
-
-
             // Spectrogram
             if (waveforms.spectrogram && waveforms.spectrogram_freq_max) {
                 const numFreqPoints = waveforms.spectrogram.length;
                 const numTimePoints = waveforms.spectrogram[0].length;
-                
-                // Use the actual audio duration from the response
-                const duration = data.duration_actual;
                 
                 console.log(`Spectrogram: ${numFreqPoints} freq x ${numTimePoints} time points`);
                 console.log(`Duration: ${duration}s, Max freq: ${waveforms.spectrogram_freq_max}kHz`);
@@ -891,7 +887,7 @@
                 Plotly.newPlot('plot-spectrogram', spectrogramData, spectrogramLayout, {responsive: true});
             }
         }
-
+        
         function base64ToBlob(base64) {
             const binary = atob(base64);
             const bytes = new Uint8Array(binary.length);
