@@ -856,15 +856,26 @@
                 console.log(`Spectrogram: ${numFreqPoints} freq x ${numTimePoints} time points`);
                 console.log(`Duration: ${duration}s, Max freq: ${waveforms.spectrogram_freq_max}kHz`);
                 
+                // Create explicit x and y axes for the heatmap
+                const timeAxis = Array.from({length: numTimePoints}, (_, i) => 
+                    (i / (numTimePoints - 1)) * duration
+                );
+                
+                const freqAxis = Array.from({length: numFreqPoints}, (_, i) => 
+                    (i / (numFreqPoints - 1)) * waveforms.spectrogram_freq_max
+                );
+                
                 const spectrogramData = [{
                     z: waveforms.spectrogram,
+                    x: timeAxis,
+                    y: freqAxis,
                     type: 'heatmap',
                     colorscale: [
-                        [0, 'rgb(0, 0, 0)'],
-                        [0.5, 'rgb(128, 128, 128)'],
-                        [1, 'rgb(255, 255, 255)']
+                        [0, 'rgb(255, 255, 255)'],      // White for low values
+                        [0.5, 'rgb(128, 128, 128)'],    // Gray for medium
+                        [1, 'rgb(0, 0, 0)']             // Black for high values
                     ],
-                    showscale: false,
+                    showscale: true,  // Show scale to debug values
                     hovertemplate: 'Time: %{x:.3f}s<br>Freq: %{y:.2f}kHz<br>Intensity: %{z:.1f}dB<extra></extra>'
                 }];
 
@@ -872,7 +883,6 @@
                     title: 'Spectrogram',
                     xaxis: { 
                         title: 'Time (s)',
-                        range: [0, duration],
                         showgrid: false
                     },
                     yaxis: { 
@@ -887,7 +897,7 @@
                 Plotly.newPlot('plot-spectrogram', spectrogramData, spectrogramLayout, {responsive: true});
             }
         }
-        
+
         function base64ToBlob(base64) {
             const binary = atob(base64);
             const bytes = new Uint8Array(binary.length);
