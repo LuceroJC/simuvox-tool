@@ -337,9 +337,9 @@
                     <div class="param-group">
                         <div class="param-label">
                             <span>Lung press (Pa):</span>
-                            <span class="param-value" id="lung-value">500.0</span>
+                            <span class="param-value" id="lung-value">80.0</span>
                         </div>
-                        <input type="range" id="lung" min="0" max="2000" step="5" value="500" oninput="updateValue('lung')">
+                        <input type="range" id="lung" min="20" max="200" step="5" value="80" oninput="updateValue('lung')">
                     </div>
 
                     <div class="param-group">
@@ -450,33 +450,33 @@
                         <div class="param-group">
                             <div class="param-label">
                                 <span>Wow:</span>
-                                <span class="param-value" id="wow-value">1.0</span>
+                                <span class="param-value" id="wow-value">0.0</span>
                             </div>
-                            <input type="range" id="wow" min="0" max="10" step="0.1" value="1" oninput="updateValue('wow')">
+                            <input type="range" id="wow" min="0" max="10" step="0.1" value="0" oninput="updateValue('wow')">
                         </div>
 
                         <div class="param-group">
                             <div class="param-label">
                                 <span>Tremor:</span>
-                                <span class="param-value" id="tremor-value">1.0</span>
+                                <span class="param-value" id="tremor-value">0.0</span>
                             </div>
-                            <input type="range" id="tremor" min="0" max="10" step="0.1" value="1" oninput="updateValue('tremor')">
+                            <input type="range" id="tremor" min="0" max="10" step="0.1" value="0" oninput="updateValue('tremor')">
                         </div>
 
                         <div class="param-group">
                             <div class="param-label">
                                 <span>Jitter:</span>
-                                <span class="param-value" id="jitter-value">1.0</span>
+                                <span class="param-value" id="jitter-value">0.0</span>
                             </div>
-                            <input type="range" id="jitter" min="0" max="10" step="0.1" value="1" oninput="updateValue('jitter')">
+                            <input type="range" id="jitter" min="0" max="10" step="0.1" value="0" oninput="updateValue('jitter')">
                         </div>
 
                         <div class="param-group">
                             <div class="param-label">
                                 <span>Asp noise:</span>
-                                <span class="param-value" id="aspiration-value">1.0</span>
+                                <span class="param-value" id="aspiration-value">0.0</span>
                             </div>
-                            <input type="range" id="aspiration" min="0" max="10" step="0.1" value="1" oninput="updateValue('aspiration')">
+                            <input type="range" id="aspiration" min="0" max="10" step="0.1" value="0" oninput="updateValue('aspiration')">
                         </div>
 
                         <button class="run-btn" id="run-btn" onclick="synthesize()">▶ Run</button>
@@ -517,12 +517,12 @@
     </div>
 
     <script>
-        const API_URL = 'https://simuvox.onrender.com';
+        const API_URL = 'https://simuvox-api.onrender.com';
         let currentAudio = null;
 
         const params = {
             gender: 'Male',
-            lung_pressure: 500,
+            lung_pressure: 80,
             mass: 0.2,
             damping: 0.025,
             stiffness: 90,
@@ -535,10 +535,10 @@
             offset_time: 0.15,
             pitch_decrease: false,
             asymmetry: 1.0,
-            wow: 1,
-            tremor: 1,
-            jitter: 1,
-            aspiration: 1,
+            wow: 0,
+            tremor: 0,
+            jitter: 0,
+            aspiration: 0,
             vocal_tract: 'aa'
         };
 
@@ -660,13 +660,18 @@
             `;
 
             try {
+                // Log params for debugging
+                console.log('Sending params:', params);
+                
                 const response = await fetch(`${API_URL}/api/synthesize`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(params)
                 });
 
+                console.log('Response status:', response.status);
                 const data = await response.json();
+                console.log('Response data:', data);
 
                 if (data.success) {
                     displayResults(data);
@@ -675,12 +680,15 @@
                     throw new Error(data.error_message || 'Synthesis failed');
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Full error:', error);
                 document.getElementById('results-container').innerHTML = `
                     <div class="placeholder">
                         <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;">⚠️</div>
                         <h3>Synthesis Failed</h3>
-                        <p>${error.message}</p>
+                        <p style="color: red; font-family: monospace; font-size: 14px;">${error.message}</p>
+                        <p style="margin-top: 20px; font-size: 14px; color: var(--text-light);">
+                            Check browser console (F12) for detailed error information
+                        </p>
                     </div>
                 `;
                 status.textContent = 'Error: ' + error.message;
