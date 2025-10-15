@@ -851,9 +851,25 @@
 
             // Spectrogram
             if (waveforms.spectrogram && waveforms.spectrogram_freq_max) {
+                // Calculate proper axes
+                const numTimePoints = waveforms.spectrogram[0].length;
+                const numFreqPoints = waveforms.spectrogram.length;
+                const duration = waveforms.time[waveforms.time.length - 1];
+                
+                // Create frequency axis (0 to freq_max kHz)
+                const freqAxis = Array.from({length: numFreqPoints}, (_, i) => 
+                    (i / numFreqPoints) * waveforms.spectrogram_freq_max
+                );
+                
+                // Create time axis
+                const timeAxis = Array.from({length: numTimePoints}, (_, i) => 
+                    (i / numTimePoints) * duration
+                );
+                
                 const spectrogramData = [{
                     z: waveforms.spectrogram,
-                    x: waveforms.time,
+                    x: timeAxis,
+                    y: freqAxis,
                     type: 'heatmap',
                     colorscale: [
                         [0, 'rgb(255, 255, 255)'],      // White (low intensity)
@@ -872,7 +888,7 @@
                     },
                     yaxis: { 
                         title: 'Frequency (kHz)',
-                        range: [0, 3],  // Limit to 3 kHz like in SimuVox
+                        range: [0, Math.min(3, waveforms.spectrogram_freq_max)],  // Limit to 3 kHz
                         showgrid: false
                     },
                     height: 400,
@@ -881,7 +897,6 @@
 
                 Plotly.newPlot('plot-spectrogram', spectrogramData, spectrogramLayout, {responsive: true});
             }
-
 
         }
 
