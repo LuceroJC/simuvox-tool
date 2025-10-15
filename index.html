@@ -337,9 +337,9 @@
                     <div class="param-group">
                         <div class="param-label">
                             <span>Lung press (Pa):</span>
-                            <span class="param-value" id="lung-value">500.0</span>
+                            <span class="param-value" id="lung-value">80.0</span>
                         </div>
-                        <input type="range" id="lung" min="20" max="2000" step="5" value="500" oninput="updateValue('lung')">
+                        <input type="range" id="lung" min="20" max="200" step="5" value="80" oninput="updateValue('lung')">
                     </div>
 
                     <div class="param-group">
@@ -450,33 +450,33 @@
                         <div class="param-group">
                             <div class="param-label">
                                 <span>Wow:</span>
-                                <span class="param-value" id="wow-value">1.0</span>
+                                <span class="param-value" id="wow-value">0.0</span>
                             </div>
-                            <input type="range" id="wow" min="0" max="10" step="0.1" value="1" oninput="updateValue('wow')">
+                            <input type="range" id="wow" min="0" max="10" step="0.1" value="0" oninput="updateValue('wow')">
                         </div>
 
                         <div class="param-group">
                             <div class="param-label">
                                 <span>Tremor:</span>
-                                <span class="param-value" id="tremor-value">1.0</span>
+                                <span class="param-value" id="tremor-value">0.0</span>
                             </div>
-                            <input type="range" id="tremor" min="0" max="10" step="0.1" value="1" oninput="updateValue('tremor')">
+                            <input type="range" id="tremor" min="0" max="10" step="0.1" value="0" oninput="updateValue('tremor')">
                         </div>
 
                         <div class="param-group">
                             <div class="param-label">
                                 <span>Jitter:</span>
-                                <span class="param-value" id="jitter-value">1.0</span>
+                                <span class="param-value" id="jitter-value">0.0</span>
                             </div>
-                            <input type="range" id="jitter" min="0" max="10" step="0.1" value="1" oninput="updateValue('jitter')">
+                            <input type="range" id="jitter" min="0" max="10" step="0.1" value="0" oninput="updateValue('jitter')">
                         </div>
 
                         <div class="param-group">
                             <div class="param-label">
                                 <span>Asp noise:</span>
-                                <span class="param-value" id="aspiration-value">1.0</span>
+                                <span class="param-value" id="aspiration-value">0.0</span>
                             </div>
-                            <input type="range" id="aspiration" min="0" max="10" step="0.1" value="1" oninput="updateValue('aspiration')">
+                            <input type="range" id="aspiration" min="0" max="10" step="0.1" value="0" oninput="updateValue('aspiration')">
                         </div>
 
                         <button class="run-btn" id="run-btn" onclick="synthesize()">▶ Run</button>
@@ -522,7 +522,7 @@
 
         const params = {
             gender: 'Male',
-            lung_pressure: 500,
+            lung_pressure: 80,
             mass: 0.2,
             damping: 0.025,
             stiffness: 90,
