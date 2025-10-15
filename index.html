@@ -748,29 +748,27 @@
                     </div>
                 </div>
             `;
-            html += '<h3 style="margin: 30px 0 15px 0;">Acoustic Output</h3>';
-            html += '<div id="plot-acoustic" class="chart-container"></div>';
-            
+
             // Add waveform plots
             if (data.waveforms) {
                 html += '<h3 style="margin: 30px 0 15px 0;">Glottal Waveforms</h3>';
                 html += '<div id="plot-vf" class="chart-container"></div>';
                 html += '<div id="plot-area" class="chart-container"></div>';
                 html += '<div id="plot-flow" class="chart-container"></div>';
+                html += '<h3 style="margin: 30px 0 15px 0;">Acoustic Output</h3>';
+                html += '<div id="plot-acoustic" class="chart-container"></div>';
+                html += '<h3 style="margin: 30px 0 15px 0;">Spectrogram</h3>';
+                html += '<div id="plot-spectrogram" class="chart-container"></div>';
             }
-
-            // Add after acoustic output
-            html += '<h3 style="margin: 30px 0 15px 0;">Spectrogram</h3>';
-            html += '<div id="plot-spectrogram" class="chart-container"></div>';
 
             document.getElementById('results-container').innerHTML = html;
 
-            // Plot waveforms
+            // Plot waveforms - PASS DURATION HERE
             if (data.waveforms) {
-                plotWaveforms(data.waveforms);
+                console.log('Calling plotWaveforms with duration:', data.duration_actual);
+                plotWaveforms(data.waveforms, data.duration_actual);
             }
         }
-
         function plotWaveforms(waveforms, duration) {  // Add duration parameter
             // Vocal fold displacement
             const trace1 = {
@@ -848,13 +846,14 @@
                 margin: { l: 60, r: 40, t: 60, b: 60 }
             }, {responsive: true});
 
-        // Spectrogram
-        if (waveforms.spectrogram && waveforms.spectrogram_freq_max) {
-            const numFreqPoints = waveforms.spectrogram.length;
-            const numTimePoints = waveforms.spectrogram[0].length;
-            
-            console.log(`Spectrogram: ${numFreqPoints} freq x ${numTimePoints} time points`);
-            console.log(`Duration: ${duration}s, Max freq: ${waveforms.spectrogram_freq_max}kHz`);
+            // Spectrogram
+
+            if (waveforms.spectrogram && waveforms.spectrogram_freq_max) {
+                const numFreqPoints = waveforms.spectrogram.length;  // This is correct: rows = freq
+                const numTimePoints = waveforms.spectrogram[0].length;  // cols = time
+                
+                console.log(`Spectrogram: ${numFreqPoints} freq x ${numTimePoints} time points`);
+                console.log(`Duration: ${duration}s, Max freq: ${waveforms.spectrogram_freq_max}kHz`);
             
             // Sample some values to debug
             console.log(`Sample spectrogram values:`, 
