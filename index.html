@@ -848,54 +848,62 @@
                 margin: { l: 60, r: 40, t: 60, b: 60 }
             }, {responsive: true});
 
-            // Spectrogram
-            if (waveforms.spectrogram && waveforms.spectrogram_freq_max) {
-                const numFreqPoints = waveforms.spectrogram.length;
-                const numTimePoints = waveforms.spectrogram[0].length;
-                
-                console.log(`Spectrogram: ${numFreqPoints} freq x ${numTimePoints} time points`);
-                console.log(`Duration: ${duration}s, Max freq: ${waveforms.spectrogram_freq_max}kHz`);
-                
-                // Create explicit x and y axes for the heatmap
-                const timeAxis = Array.from({length: numTimePoints}, (_, i) => 
-                    (i / (numTimePoints - 1)) * duration
-                );
-                
-                const freqAxis = Array.from({length: numFreqPoints}, (_, i) => 
-                    (i / (numFreqPoints - 1)) * waveforms.spectrogram_freq_max
-                );
-                
-                const spectrogramData = [{
-                    z: waveforms.spectrogram,
-                    x: timeAxis,
-                    y: freqAxis,
-                    type: 'heatmap',
-                    colorscale: [
-                        [0, 'rgb(255, 255, 255)'],      // White for low values
-                        [0.5, 'rgb(128, 128, 128)'],    // Gray for medium
-                        [1, 'rgb(0, 0, 0)']             // Black for high values
-                    ],
-                    showscale: true,  // Show scale to debug values
-                    hovertemplate: 'Time: %{x:.3f}s<br>Freq: %{y:.2f}kHz<br>Intensity: %{z:.1f}dB<extra></extra>'
-                }];
+        // Spectrogram
+        if (waveforms.spectrogram && waveforms.spectrogram_freq_max) {
+            const numFreqPoints = waveforms.spectrogram.length;
+            const numTimePoints = waveforms.spectrogram[0].length;
+            
+            console.log(`Spectrogram: ${numFreqPoints} freq x ${numTimePoints} time points`);
+            console.log(`Duration: ${duration}s, Max freq: ${waveforms.spectrogram_freq_max}kHz`);
+            
+            // Sample some values to debug
+            console.log(`Sample spectrogram values:`, 
+                waveforms.spectrogram[0].slice(0, 5),
+                waveforms.spectrogram[Math.floor(numFreqPoints/2)].slice(0, 5)
+            );
+            
+            // Create explicit x and y axes for the heatmap
+            const timeAxis = Array.from({length: numTimePoints}, (_, i) => 
+                (i / (numTimePoints - 1)) * duration
+            );
+            
+            const freqAxis = Array.from({length: numFreqPoints}, (_, i) => 
+                (i / (numFreqPoints - 1)) * waveforms.spectrogram_freq_max
+            );
+            
+            const spectrogramData = [{
+                z: waveforms.spectrogram,
+                x: timeAxis,
+                y: freqAxis,
+                type: 'heatmap',
+                colorscale: 'Greys',  // Use built-in Greys scale (white to black)
+                reversescale: true,   // Reverse it so white=low, black=high
+                zmin: 0,              // Explicitly set range
+                zmax: 50,
+                showscale: true,
+                colorbar: {
+                    title: 'dB'
+                },
+                hovertemplate: 'Time: %{x:.3f}s<br>Freq: %{y:.2f}kHz<br>Intensity: %{z:.1f}dB<extra></extra>'
+            }];
 
-                const spectrogramLayout = {
-                    title: 'Spectrogram',
-                    xaxis: { 
-                        title: 'Time (s)',
-                        showgrid: false
-                    },
-                    yaxis: { 
-                        title: 'Frequency (kHz)',
-                        range: [0, Math.min(3, waveforms.spectrogram_freq_max)],
-                        showgrid: false
-                    },
-                    height: 400,
-                    margin: { l: 60, r: 40, t: 60, b: 60 }
-                };
+            const spectrogramLayout = {
+                title: 'Spectrogram',
+                xaxis: { 
+                    title: 'Time (s)',
+                    showgrid: false
+                },
+                yaxis: { 
+                    title: 'Frequency (kHz)',
+                    range: [0, Math.min(3, waveforms.spectrogram_freq_max)],
+                    showgrid: false
+                },
+                height: 400,
+                margin: { l: 60, r: 40, t: 60, b: 60 }
+            };
 
-                Plotly.newPlot('plot-spectrogram', spectrogramData, spectrogramLayout, {responsive: true});
-            }
+            Plotly.newPlot('plot-spectrogram', spectrogramData, spectrogramLayout, {responsive: true});
+        }
         }
 
         function base64ToBlob(base64) {
