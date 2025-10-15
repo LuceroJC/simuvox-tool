@@ -759,6 +759,10 @@
                 html += '<div id="plot-flow" class="chart-container"></div>';
             }
 
+            // Add after acoustic output
+            html += '<h3 style="margin: 30px 0 15px 0;">Spectrogram</h3>';
+            html += '<div id="plot-spectrogram" class="chart-container"></div>';
+
             document.getElementById('results-container').innerHTML = html;
 
             // Plot waveforms
@@ -842,6 +846,43 @@
                 height: 300,
                 margin: { l: 60, r: 40, t: 60, b: 60 }
             }, {responsive: true});
+
+
+
+            // Spectrogram
+            if (waveforms.spectrogram && waveforms.spectrogram_freq_max) {
+                const spectrogramData = [{
+                    z: waveforms.spectrogram,
+                    x: waveforms.time,
+                    type: 'heatmap',
+                    colorscale: [
+                        [0, 'rgb(255, 255, 255)'],      // White (low intensity)
+                        [0.5, 'rgb(128, 128, 128)'],    // Gray
+                        [1, 'rgb(0, 0, 0)']             // Black (high intensity)
+                    ],
+                    showscale: false,
+                    hovertemplate: 'Time: %{x:.2f}s<br>Freq: %{y:.2f}kHz<br>Intensity: %{z:.1f}dB<extra></extra>'
+                }];
+
+                const spectrogramLayout = {
+                    title: 'Spectrogram',
+                    xaxis: { 
+                        title: 'Time (s)',
+                        showgrid: false
+                    },
+                    yaxis: { 
+                        title: 'Frequency (kHz)',
+                        range: [0, 3],  // Limit to 3 kHz like in SimuVox
+                        showgrid: false
+                    },
+                    height: 400,
+                    margin: { l: 60, r: 40, t: 60, b: 60 }
+                };
+
+                Plotly.newPlot('plot-spectrogram', spectrogramData, spectrogramLayout, {responsive: true});
+            }
+
+
         }
 
         function base64ToBlob(base64) {
