@@ -912,6 +912,32 @@
         window.addEventListener('load', () => {
             plotVocalTract();
         });
+
+        // Handle window resize to keep plots responsive
+        window.addEventListener('resize', function() {
+            // Debounce resize events
+            clearTimeout(window.resizeTimer);
+            window.resizeTimer = setTimeout(function() {
+                // Get all plot divs
+                const plotDivs = [
+                    'plot-vf', 
+                    'plot-area', 
+                    'plot-flow', 
+                    'plot-acoustic', 
+                    'plot-spectrogram',
+                    'vt-plot'
+                ];
+                
+                // Relayout each plot that exists
+                plotDivs.forEach(divId => {
+                    const div = document.getElementById(divId);
+                    if (div && div.data) {
+                        Plotly.Plots.resize(div);
+                    }
+                });
+            }, 250); // Wait 250ms after resize stops before redrawing
+        });
+
     </script>
 </body>
 </html>
