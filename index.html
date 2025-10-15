@@ -430,7 +430,7 @@
 
                         <div class="param-group">
                             <label style="display: flex; align-items: center; cursor: pointer;">
-                                <input type="checkbox" id="pitch_decrease" style="margin-right: 10px; width: 18px; height: 18px;">
+                                <input type="checkbox" id="pitch_decrease" checked style="margin-right: 10px; width: 18px; height: 18px;">
                                 <span>Pitch decrease</span>
                             </label>
                         </div>
@@ -444,7 +444,7 @@
                                 <span>Asymmetry:</span>
                                 <span class="param-value" id="asymmetry-value">1.0</span>
                             </div>
-                            <input type="range" id="asymmetry" min="0.1" max="10" step="0.1" value="1.0" oninput="updateValue('asymmetry')">
+                            <input type="range" id="asymmetry" min="0.0" max="10" step="0.1" value="1.0" oninput="updateValue('asymmetry')">
                         </div>
 
                         <div class="param-group">
@@ -474,9 +474,9 @@
                         <div class="param-group">
                             <div class="param-label">
                                 <span>Asp noise:</span>
-                                <span class="param-value" id="aspiration-value">1.0</span>
+                                <span class="param-value" id="aspiration-value">2.0</span>
                             </div>
-                            <input type="range" id="aspiration" min="0" max="10" step="0.1" value="1" oninput="updateValue('aspiration')">
+                            <input type="range" id="aspiration" min="0" max="10" step="0.1" value="2" oninput="updateValue('aspiration')">
                         </div>
 
                         <button class="run-btn" id="run-btn" onclick="synthesize()">▶ Run</button>
@@ -538,7 +538,7 @@
             wow: 1,
             tremor: 1,
             jitter: 1,
-            aspiration: 1,
+            aspiration: 2,
             vocal_tract: 'aa'
         };
 
@@ -847,62 +847,56 @@
             }, {responsive: true});
 
             // Spectrogram
-
             if (waveforms.spectrogram && waveforms.spectrogram_freq_max) {
-                const numFreqPoints = waveforms.spectrogram.length;  // This is correct: rows = freq
-                const numTimePoints = waveforms.spectrogram[0].length;  // cols = time
+                const numFreqPoints = waveforms.spectrogram.length;
+                const numTimePoints = waveforms.spectrogram[0].length;
                 
                 console.log(`Spectrogram: ${numFreqPoints} freq x ${numTimePoints} time points`);
                 console.log(`Duration: ${duration}s, Max freq: ${waveforms.spectrogram_freq_max}kHz`);
-            
-            // Sample some values to debug
-            console.log(`Sample spectrogram values:`, 
-                waveforms.spectrogram[0].slice(0, 5),
-                waveforms.spectrogram[Math.floor(numFreqPoints/2)].slice(0, 5)
-            );
-            
-            // Create explicit x and y axes for the heatmap
-            const timeAxis = Array.from({length: numTimePoints}, (_, i) => 
-                (i / (numTimePoints - 1)) * duration
-            );
-            
-            const freqAxis = Array.from({length: numFreqPoints}, (_, i) => 
-                (i / (numFreqPoints - 1)) * waveforms.spectrogram_freq_max
-            );
-            
-            const spectrogramData = [{
-                z: waveforms.spectrogram,
-                x: timeAxis,
-                y: freqAxis,
-                type: 'heatmap',
-                colorscale: 'Greys',  // Use built-in Greys scale (white to black)
-                reversescale: true,   // Reverse it so white=low, black=high
-                zmin: 0,              // Explicitly set range
-                zmax: 50,
-                showscale: true,
-                colorbar: {
-                    title: 'dB'
-                },
-                hovertemplate: 'Time: %{x:.3f}s<br>Freq: %{y:.2f}kHz<br>Intensity: %{z:.1f}dB<extra></extra>'
-            }];
+                
+                // Create explicit x and y axes for the heatmap
+                const timeAxis = Array.from({length: numTimePoints}, (_, i) => 
+                    (i / (numTimePoints - 1)) * duration
+                );
+                
+                const freqAxis = Array.from({length: numFreqPoints}, (_, i) => 
+                    (i / (numFreqPoints - 1)) * waveforms.spectrogram_freq_max
+                );
+                
+                const spectrogramData = [{
+                    z: waveforms.spectrogram,
+                    x: timeAxis,
+                    y: freqAxis,
+                    type: 'heatmap',
+                    colorscale: 'Greys',
+                    reversescale: true,
+                    zmin: 0,
+                    zmax: 50,
+                    zsmooth: 'best',  // SMOOTH INTERPOLATION - like matplotlib's bilinear
+                    showscale: true,
+                    colorbar: {
+                        title: 'dB'
+                    },
+                    hovertemplate: 'Time: %{x:.3f}s<br>Freq: %{y:.2f}kHz<br>Intensity: %{z:.1f}dB<extra></extra>'
+                }];
 
-            const spectrogramLayout = {
-                title: 'Spectrogram',
-                xaxis: { 
-                    title: 'Time (s)',
-                    showgrid: false
-                },
-                yaxis: { 
-                    title: 'Frequency (kHz)',
-                    range: [0, Math.min(3, waveforms.spectrogram_freq_max)],
-                    showgrid: false
-                },
-                height: 400,
-                margin: { l: 60, r: 40, t: 60, b: 60 }
-            };
+                const spectrogramLayout = {
+                    title: 'Spectrogram',
+                    xaxis: { 
+                        title: 'Time (s)',
+                        showgrid: false
+                    },
+                    yaxis: { 
+                        title: 'Frequency (kHz)',
+                        range: [0, Math.min(3, waveforms.spectrogram_freq_max)],
+                        showgrid: false
+                    },
+                    height: 400,
+                    margin: { l: 60, r: 40, t: 60, b: 60 }
+                };
 
-            Plotly.newPlot('plot-spectrogram', spectrogramData, spectrogramLayout, {responsive: true});
-        }
+                Plotly.newPlot('plot-spectrogram', spectrogramData, spectrogramLayout, {responsive: true});
+            }
         }
 
         function base64ToBlob(base64) {
