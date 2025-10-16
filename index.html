@@ -769,7 +769,7 @@
                 plotWaveforms(data.waveforms, data.duration_actual);
             }
         }
-        
+
         async function plotWaveforms(waveforms, duration) {
             console.log('=== Starting plotWaveforms ===');
             
@@ -936,7 +936,7 @@
         });
 
         // Handle window resize to keep plots responsive
- /*       let resizeTimer;
+        let resizeTimer;
         window.addEventListener('resize', function() {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function() {
@@ -951,17 +951,17 @@
                 
                 plotDivs.forEach(divId => {
                     const div = document.getElementById(divId);
-                    if (div && div.data) {
-                        try {
-                            Plotly.Plots.resize(div);
-                        } catch (e) {
-                            console.log('Resize failed for', divId);
-                        }
+                    if (div && div.layout) {
+                        // Force Plotly to recalculate layout
+                        Plotly.relayout(div, {
+                            width: div.parentElement.clientWidth
+                        }).catch(err => {
+                            // Silently ignore any errors during resize
+                        });
                     }
                 });
-            }, 250);
+            }, 100);
         });
-*/
     </script>
 </body>
 </html>
