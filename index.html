@@ -792,7 +792,8 @@
                 yaxis: { title: 'VF displ (cm)' },
                 showlegend: true,
                 height: 300,
-                margin: { l: 60, r: 40, t: 60, b: 60 }
+                margin: { l: 60, r: 40, t: 60, b: 60 },
+                autosize: true 
             }, {responsive: true});
 
             // Glottal area
@@ -809,7 +810,8 @@
                 xaxis: { title: 'Time (s)' },
                 yaxis: { title: 'Area (cm²)' },
                 height: 300,
-                margin: { l: 60, r: 40, t: 60, b: 60 }
+                margin: { l: 60, r: 40, t: 60, b: 60 },
+                autosize: true 
             }, {responsive: true});
 
             // Glottal flow
@@ -826,7 +828,8 @@
                 xaxis: { title: 'Time (s)' },
                 yaxis: { title: 'Flow (dm³/s)' },
                 height: 300,
-                margin: { l: 60, r: 40, t: 60, b: 60 }
+                margin: { l: 60, r: 40, t: 60, b: 60 },
+                autosize: true 
             }, {responsive: true});
 
             // Acoustic pressure
@@ -843,7 +846,8 @@
                 xaxis: { title: 'Time (s)' },
                 yaxis: { title: 'Pressure (Pa)' },
                 height: 300,
-                margin: { l: 60, r: 40, t: 60, b: 60 }
+                margin: { l: 60, r: 40, t: 60, b: 60 },
+                autosize: true 
             }, {responsive: true});
 
             // Spectrogram
@@ -914,10 +918,11 @@
         });
 
         // Handle window resize to keep plots responsive
+        let resizeTimer;
         window.addEventListener('resize', function() {
             // Debounce resize events
-            clearTimeout(window.resizeTimer);
-            window.resizeTimer = setTimeout(function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
                 // Get all plot divs
                 const plotDivs = [
                     'plot-vf', 
@@ -931,8 +936,19 @@
                 // Relayout each plot that exists
                 plotDivs.forEach(divId => {
                     const div = document.getElementById(divId);
-                    if (div && div.data) {
-                        Plotly.Plots.resize(div);
+                    if (div) {
+                        // Use Plotly.relayout instead of Plotly.Plots.resize for better control
+                        Plotly.relayout(div, {
+                            'xaxis.autorange': true,
+                            'yaxis.autorange': true,
+                            width: null,  // Let it auto-size
+                            height: null
+                        }).catch(err => {
+                            // If relayout fails, try resize as fallback
+                            if (div.data) {
+                                Plotly.Plots.resize(div);
+                            }
+                        });
                     }
                 });
             }, 250); // Wait 250ms after resize stops before redrawing
