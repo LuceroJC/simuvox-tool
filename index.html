@@ -487,19 +487,53 @@
             </div>
         </div>
 
-        <!-- Articulatory Model Tab -->
+    <!-- Vocal Tract Model Tab -->
         <div id="articulation-tab" class="tab-content">
             <div class="card">
-                <h2>Vocal Tract Configuration</h2>
-                <p style="margin-bottom: 20px; color: var(--text-light);">
-                    Vocal tract: <strong id="vt-name">aa (vowel)</strong>
-                </p>
+                <h2>Vocal Tract Model</h2>
                 
-                <div id="vt-plot" style="width: 100%; height: 500px;"></div>
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight: 600; margin-bottom: 10px; display: block;">Select Vowel:</label>
+                    <select id="vowel-select" onchange="loadVowelData()" style="width: 100%; padding: 10px; border: 2px solid var(--border); border-radius: 8px; font-size: 16px;">
+                        <option value="aa">aa - /ɑ/ as in "father"</option>
+                        <option value="ae">ae - /æ/ as in "cat"</option>
+                        <option value="ah">ah - /ʌ/ as in "cut"</option>
+                        <option value="ao">ao - /ɔ/ as in "caught"</option>
+                        <option value="eh">eh - /ɛ/ as in "bed"</option>
+                        <option value="er">er - /ɚ/ as in "butter"</option>
+                        <option value="ih">ih - /ɪ/ as in "bit"</option>
+                        <option value="iy">iy - /i/ as in "beet"</option>
+                        <option value="uh">uh - /ʊ/ as in "book"</option>
+                        <option value="uw">uw - /u/ as in "boot"</option>
+                        <option value="iw">iw - /y/ (French "tu")</option>
+                        <option value="ew">ew - /ø/ (French "peu")</option>
+                        <option value="oe">oe - /œ/ (French "peur")</option>
+                    </select>
+                </div>
+
+                <div class="measures-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+                    <div class="measure-card">
+                        <div class="measure-label">F1</div>
+                        <div class="measure-value" id="f1-value">--</div>
+                        <div class="measure-unit">Hz</div>
+                    </div>
+                    <div class="measure-card">
+                        <div class="measure-label">F2</div>
+                        <div class="measure-value" id="f2-value">--</div>
+                        <div class="measure-unit">Hz</div>
+                    </div>
+                    <div class="measure-card">
+                        <div class="measure-label">F3</div>
+                        <div class="measure-value" id="f3-value">--</div>
+                        <div class="measure-unit">Hz</div>
+                    </div>
+                </div>
+                
+                <div id="vt-plot" style="width: 100%; height: 400px;"></div>
                 
                 <p style="margin-top: 20px; padding: 15px; background: var(--bg-light); border-radius: 8px; font-size: 14px; color: var(--text-light);">
-                    💡 The vocal tract shape determines the formant frequencies and overall voice quality. 
-                    Different vowels have different tract shapes.
+                    💡 The vocal tract shape determines the formant frequencies (F1, F2, F3) and overall voice quality. 
+                    Different vowels have different tract shapes. The selected vowel will be used in voice synthesis.
                 </p>
             </div>
         </div>
