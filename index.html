@@ -593,10 +593,11 @@
             params.vocal_tract = vowelCode;
             
             console.log('Loading vowel data for:', vowelCode);
-            console.log('API URL:', `${API_URL}/api/vowel/${vowelCode}`);
+            console.log('Gender:', params.gender);
+            console.log('API URL:', `${API_URL}/api/vowel/${vowelCode}?gender=${params.gender}`);
             
             try {
-                const response = await fetch(`${API_URL}/api/vowel/${vowelCode}`);
+                const response = await fetch(`${API_URL}/api/vowel/${vowelCode}?gender=${params.gender}`);
                 console.log('Response status:', response.status);
                 
                 if (!response.ok) {
@@ -684,6 +685,12 @@
                 setParamValue('stiffness', 185);
                 setParamValue('glottal_length', 1.0);
                 setParamValue('glottal_depth', 0.25);
+            }
+            
+            // Reload vowel data with new gender (if vocal tract tab is visible)
+            const articulationTab = document.getElementById('articulation-tab');
+            if (articulationTab && articulationTab.classList.contains('active')) {
+                loadVowelData();
             }
         }
 
