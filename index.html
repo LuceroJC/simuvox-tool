@@ -315,7 +315,7 @@
         <!-- Tabs -->
         <div class="tabs">
             <button class="tab active" onclick="switchTab('main')">Main Controls</button>
-            <button class="tab" onclick="switchTab('articulation')">Articulatory Model</button>
+            <button class="tab" onclick="switchTab('articulation')">Vocal Tract Model</button>
             <button class="tab" id="results-tab" onclick="switchTab('results')" style="display: none;">Results</button>
         </div>
 
@@ -487,7 +487,7 @@
             </div>
         </div>
 
-    <!-- Vocal Tract Model Tab -->
+        <!-- Vocal Tract Model Tab -->
         <div id="articulation-tab" class="tab-content">
             <div class="card">
                 <h2>Vocal Tract Model</h2>
@@ -584,8 +584,65 @@
             document.getElementById(`${tab}-tab${tab === 'results' ? '-content' : ''}`).classList.add('active');
             
             if (tab === 'articulation') {
-                plotVocalTract();
+                loadVowelData();
             }
+        }
+
+        async function loadVowelData() {
+            const vowelCode = document.getElementById('vowel-select').value;
+            params.vocal_tract = vowelCode;
+            
+            console.log('Loading vowel data for:', vowelCode);
+            console.log('API URL:', `${API_URL}/api/vowel/${vowelCode}`);
+            
+            try {
+                const response = await fetch(`${API_URL}/api/vowel/${vowelCode}`);
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Vowel data received:', data);
+                
+                // Update formants display
+                document.getElementById('f1-value').textContent = Math.round(data.formants.f1);
+                document.getElementById('f2-value').textContent = Math.round(data.formants.f2);
+                document.getElementById('f3-value').textContent = Math.round(data.formants.f3);
+                
+                // Plot area function
+                plotVocalTract(data.area_function);
+                console.log('Vowel data loaded successfully');
+            } catch (error) {
+                console.error('Error loading vowel data:', error);
+                console.error('Full error:', error.message);
+                // Show error in UI
+                document.getElementById('f1-value').textContent = 'Error';
+                document.getElementById('f2-value').textContent = 'Error';
+                document.getElementById('f3-value').textContent = 'Error';
+            }
+        }
+
+        function plotVocalTract(areaFunction) {
+            const trace = {
+                x: areaFunction.distance,
+                y: areaFunction.area,
+                type: 'scatter',
+                mode: 'lines',
+                fill: 'tozeroy',
+                line: { color: '#667eea', width: 3 }
+            };
+
+            const layout = {
+                title: 'Vocal Tract Area Function',
+                xaxis: { title: 'Distance from glottis (cm)' },
+                yaxis: { title: 'Area (cm²)' },
+                showlegend: false,
+                margin: { l: 60, r: 40, t: 60, b: 60 }
+            };
+
+            Plotly.newPlot('vt-plot', [trace], layout, {responsive: true});
         }
 
         function updateValue(param) {
@@ -641,35 +698,6 @@
             } else {
                 display.textContent = value.toFixed(1);
             }
-        }
-
-        function plotVocalTract() {
-            // Sample vocal tract area function for /a/
-            const x = Array.from({length: 42}, (_, i) => i * 0.4);
-            const area = [3.21, 2.77, 1.98, 1.36, 1.27, 1.71, 2.18, 2.34, 2.28,
-                         2.09, 1.84, 1.69, 1.68, 1.80, 2.02, 2.29, 2.58, 2.87,
-                         3.11, 3.21, 3.20, 3.12, 3.02, 2.99, 3.16, 3.73, 4.78,
-                         6.15, 7.53, 8.49, 8.85, 8.86, 8.71, 8.26, 7.86, 7.84,
-                         7.80, 6.16, 4.21, 3.72, 3.63, 3.63];
-
-            const trace = {
-                x: x,
-                y: area,
-                type: 'scatter',
-                mode: 'lines',
-                fill: 'tozeroy',
-                line: { color: '#667eea', width: 3 }
-            };
-
-            const layout = {
-                title: 'Vocal Tract Area Function',
-                xaxis: { title: 'Distance from glottis (cm)' },
-                yaxis: { title: 'Area (cm²)' },
-                showlegend: false,
-                margin: { l: 60, r: 40, t: 60, b: 60 }
-            };
-
-            Plotly.newPlot('vt-plot', [trace], layout, {responsive: true});
         }
 
         async function synthesize() {
@@ -797,7 +825,7 @@
 
             document.getElementById('results-container').innerHTML = html;
 
-            // Plot waveforms - PASS DURATION HERE
+            // Plot waveforms
             if (data.waveforms) {
                 console.log('Calling plotWaveforms with duration:', data.duration_actual);
                 plotWaveforms(data.waveforms, data.duration_actual);
@@ -835,8 +863,8 @@
                     showlegend: true,
                     height: 300,
                     margin: { l: 60, r: 40, t: 60, b: 60 }
-                }, {responsive: true});
-                await wait(50); // Wait 50ms before next plot
+                }, {responsive:true});
+                await wait(50);
                 console.log('✓ Vocal fold plot OK');
             } catch (e) {
                 console.error('✗ Vocal fold plot failed:', e);
@@ -954,7 +982,8 @@
             }
             
             console.log('=== Finished plotWaveforms ===');
-        }        
+        }
+
         function base64ToBlob(base64) {
             const binary = atob(base64);
             const bytes = new Uint8Array(binary.length);
@@ -966,7 +995,7 @@
 
         // Initialize vocal tract plot when page loads
         window.addEventListener('load', () => {
-            plotVocalTract();
+            loadVowelData();  // Load default vowel (aa)
         });
 
         // Handle window resize to keep plots responsive
@@ -986,11 +1015,10 @@
                 plotDivs.forEach(divId => {
                     const div = document.getElementById(divId);
                     if (div && div.layout) {
-                        // Force Plotly to recalculate layout
                         Plotly.relayout(div, {
                             width: div.parentElement.clientWidth
                         }).catch(err => {
-                            // Silently ignore any errors during resize
+                            // Silently ignore errors during resize
                         });
                     }
                 });
